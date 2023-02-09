@@ -189,7 +189,18 @@ export default defineComponent({
       }
       try {
         const wether = await getWether(coordinatesNewPlace);
-        this.localLocations.push(wether);
+
+        const alreadyExist =
+          this.localLocations.findIndex(
+            (el: Place) => el.title === wether.title
+          ) + 1;
+
+        if (!alreadyExist) {
+          this.localLocations.push(wether);
+        } else {
+          this.error = "This value already exists. Try another";
+          return;
+        }
         this.$emit("update:locations", this.localLocations);
       } catch ({ message }) {
         throw new Error("Проблема в openweathermap " + message);
