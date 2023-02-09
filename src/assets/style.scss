@@ -1,0 +1,127 @@
+* {
+  margin: 0;
+  padding: 0;
+
+  ul > li {
+    list-style: none;
+  }
+}
+
+.wether-widget {
+  $root: &;
+  background-color: #ccc;
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid #444;
+
+  &__button {
+    display: block;
+    margin-left: auto;
+    margin-bottom: 16px;
+    font-size: 1em;
+    padding: 0.5em;
+    cursor: pointer;
+  }
+}
+
+.place {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #333;
+  margin-bottom: 8px;
+
+  &__title {
+    font-size: 1.4em;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  &__temp {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-right: 1em;
+  }
+}
+
+.settings {
+  &__title {
+    font-size: 2em;
+    margin-bottom: 0.5em;
+  }
+
+  &__locations {
+    margin-bottom: 1em;
+  }
+
+  &__locations-item {
+    padding: 0.4em 0.5em;
+    background-color: #d3a8a8;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    border-radius: 0.4em;
+
+    &.dragged {
+      background-color: #ccc2c2;
+      border: dotted 2px #000;
+    }
+
+    &.dragover {
+      color: red;
+      transform: translate(5px, 5px);
+      transition: all ease 0.4s;
+    }
+
+    &:not(:last-child) {
+      margin-bottom: 1em;
+    }
+  }
+
+  &__locations-grab {
+    cursor: grab;
+  }
+
+  &__locations-trash {
+    cursor: pointer;
+  }
+
+  &__locations-title {
+    flex-grow: 1;
+    margin-left: 0.5em;
+  }
+
+  &__input {
+    padding: 0.2em 0.5em;
+    font-size: 1.2em;
+    margin-right: 0.5em;
+  }
+
+  &__input-error { color: red;}
+
+  &__input-wrapper {
+    p {
+      width: 100%;
+      margin-bottom: 0.2em;
+    }
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .list-move,
+  .list-enter-active,
+  .list-leave-active {
+    transition: all 0.5s ease;
+  }
+
+  .list-enter-from,
+  .list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  .list-leave-active {
+    position: absolute;
+  }
+}
