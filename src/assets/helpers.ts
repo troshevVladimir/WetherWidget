@@ -20,6 +20,7 @@ interface ApiResp {
   temp: number;
   temp_max: number;
   temp_min: number;
+  crd: Coordinates;
 }
 
 export function getWether(crd: Coordinates) {
@@ -34,6 +35,10 @@ export function getWether(crd: Coordinates) {
       title: response.name,
       data: response.main,
       id: response.id,
+      crd: {
+        latitude: crd.latitude,
+        longitude: crd.longitude,
+      },
     };
   });
 }

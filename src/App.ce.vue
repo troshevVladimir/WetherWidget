@@ -39,11 +39,13 @@ export interface Place {
   title: string;
   data: ApiResp;
   readonly id: number;
+  crd: Coordinates;
 }
 
 declare interface BaseComponentData {
   [key: string]: any;
   places: Place[];
+  updateInterval: number | null;
 }
 
 interface ApiResp {
@@ -69,21 +71,27 @@ export default defineComponent({
       showSettings: {},
       mdiCog,
       mdiUndoVariant,
+      updateInterval: null,
     };
   },
 
   mounted() {
+    this.updateInterval = setInterval(() => {
+      this.refreshWether(this.places);
+    }, 1000 * 60 * 60);
+
     function error(err: { code: number; message: string }) {
       console.warn(`ERROR(${err.code}): ${err.message}`);
     }
 
     const storageItemsString = localStorage.getItem("wetherWidget");
-    const storageItems = storageItemsString
+    const storageItems: Place[] | null = storageItemsString
       ? JSON.parse(storageItemsString)
-      : false;
+      : null;
 
     if (storageItems) {
       this.places = storageItems;
+      this.refreshWether(storageItems);
     } else {
       const options = {
         enableHighAccuracy: true,
@@ -116,7 +124,25 @@ export default defineComponent({
       );
     }
   },
+  beforeUnmount() {
+    if (this.updateInterval) clearInterval(this.updateInterval);
+  },
   methods: {
+    refreshWether(items: Array<Place>) {
+      const promises: Array<Promise<Place>> = [];
+      items.forEach((item: Place) => {
+        promises.push(getWether(item.crd).then((response: Place) => response));
+        this.isFetching = true;
+        Promise.all(promises)
+          .then((response) => this.locationsChangeHandler(response))
+          .catch((e) => {
+            console.error(e);
+          })
+          .finally(() => {
+            this.isFetching = false;
+          });
+      });
+    },
     locationsChangeHandler(event: Array<Place> | Place) {
       if (event instanceof Array) this.places = event;
       else this.places = [event];
