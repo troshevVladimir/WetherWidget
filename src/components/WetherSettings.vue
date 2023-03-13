@@ -59,10 +59,6 @@ export interface Data {
   icon: string;
 }
 
-export interface MyEvent extends Event {
-  target: EventTarget & HTMLInputElement;
-}
-
 declare interface BaseComponentData {
   [key: string]: any;
   selectedItemTitle: string | null;
@@ -102,29 +98,35 @@ export default defineComponent({
     const items = this.$refs.items as HTMLInputElement[];
     if (!this.$refs.items || !items.length) return;
     items.forEach((item) => {
-      item.addEventListener(`dragstart`, (e: any) => {
-        e.target.classList.add(`dragged`);
+      item.addEventListener(`dragstart`, (e: DragEvent) => {
+        (e.target as HTMLInputElement).classList.add(`dragged`);
       });
 
-      item.addEventListener(`dragend`, (e: any) => {
-        e.target.classList.remove(`dragged`);
+      item.addEventListener(`dragend`, (e: DragEvent) => {
+        (e.target as HTMLInputElement).classList.remove(`dragged`);
       });
     });
   },
 
   methods: {
-    dragoverHandler(e: MyEvent, title: string) {
+    dragoverHandler(e: DragEvent, title: string) {
       if (!title || title === this.selectedItemTitle) return;
 
-      e.target.closest(".settings__locations-item")?.classList.add("dragover");
+      (e.target as HTMLInputElement)
+        ?.closest(".settings__locations-item")
+        ?.classList.add("dragover");
     },
 
     dragStartHandler(title: string) {
       this.selectedItemTitle = title;
     },
 
-    dropHandler(e: MyEvent) {
-      const nowOverElement = e.target.closest(".settings__locations-item");
+    dropHandler(e: DragEvent, title: string) {
+      console.log(title);
+
+      const nowOverElement = (e.target as HTMLInputElement)?.closest(
+        ".settings__locations-item"
+      );
       const nowOverElementTitle = nowOverElement?.getAttribute("title");
       const nowOverElementIndex = this.localLocations.findIndex(
         (el: Place) => el.title === nowOverElementTitle
@@ -144,13 +146,14 @@ export default defineComponent({
       this.$emit("update:locations", this.localLocations);
     },
 
-    dragleaveHandler(e: MyEvent) {
-      e.target
-        .closest(".settings__locations-item")
+    dragleaveHandler(e: DragEvent) {
+      (e.target as HTMLInputElement)
+        ?.closest(".settings__locations-item")
         ?.classList.remove("dragover");
     },
-    async addNewLocation(event: MyEvent): Promise<undefined> {
-      let newValue = event.target.value;
+    async addNewLocation(event: KeyboardEvent): Promise<undefined> {
+      let target = event.target as HTMLInputElement;
+      let newValue = target?.value;
       if (!newValue) {
         this.error = "Empty value is not allowed";
         return;
@@ -169,7 +172,7 @@ export default defineComponent({
       urlNominatim.searchParams.append("limit", "1");
       urlNominatim.searchParams.append("q", newValue);
       let coordinatesNewPlace: Coordinates;
-      event.target.value = "";
+      (event.target as HTMLInputElement).value = "";
       try {
         const location: Array<{ lon: number; lat: number }> = await tsFetch(
           urlNominatim.toString()
